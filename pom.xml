@@ -82,6 +82,12 @@
                 <version>${grpc.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <scope>provided</scope>
+            </dependency>
+
             <!--    / GRPC dependencies management        -->
         </dependencies>
     </dependencyManagement>
