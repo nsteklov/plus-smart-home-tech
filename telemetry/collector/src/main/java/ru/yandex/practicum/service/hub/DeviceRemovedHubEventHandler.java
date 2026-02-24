@@ -1,13 +1,15 @@
-package ru.yandex.practicum.service;
+package ru.yandex.practicum.service.hub;
 
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.kafka.telemetry.event.DeviceRemovedEventAvro;
 import ru.yandex.practicum.model.*;
+import ru.yandex.practicum.service.KafkaProducerService;
 
 @Component(value = "DEVICE_REMOVED")
 public class DeviceRemovedHubEventHandler extends BaseHubEventHandler<DeviceRemovedEventAvro> {
-    public DeviceRemovedHubEventHandler(EventClient client) {
-        super(client);
+
+    public DeviceRemovedHubEventHandler(KafkaProducerService kafkaProducerService) {
+        super(kafkaProducerService);
     }
 
     @Override

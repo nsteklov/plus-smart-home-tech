@@ -1,17 +1,17 @@
-package ru.yandex.practicum.service;
+package ru.yandex.practicum.service.hub;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.specific.SpecificRecordBase;
-import org.apache.kafka.clients.producer.ProducerRecord;
 import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
 import ru.yandex.practicum.model.HubEvent;
+import ru.yandex.practicum.service.KafkaProducerService;
 
 @Slf4j
 public abstract class BaseHubEventHandler<T extends SpecificRecordBase> implements HubEventHandler {
-    private final EventClient client;
+    private final KafkaProducerService kafkaProducerService;
 
-    public BaseHubEventHandler(EventClient client) {
-        this.client = client;
+    public BaseHubEventHandler(KafkaProducerService kafkaProducerService) {
+        this.kafkaProducerService = kafkaProducerService;
     }
 
     protected abstract T mapToAvro(HubEvent event);
@@ -30,7 +30,7 @@ public abstract class BaseHubEventHandler<T extends SpecificRecordBase> implemen
                 .setPayload(payload)
                 .build();
 
-        client.getProducer().send(new ProducerRecord<>("telemetry.hubs.v1", eventAvro));
+        kafkaProducerService.send(eventAvro);
         log.info("отправлено сообщение: {}", eventAvro.toString());
     }
 
