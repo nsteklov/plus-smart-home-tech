@@ -50,15 +50,4 @@ public class KafkaPropertiesConfig {
     public void setHubEventTopic(String hubEventTopic) {
         this.hubEventTopic = hubEventTopic;
     }
-
-    @Override
-    public String toString() {
-        return "KafkaPropertiesConfig{" +
-                "bootstrapServers='" + bootstrapServers + '\'' +
-                ", keySerializer='" + keySerializer + '\'' +
-                ", valueSerializer='" + valueSerializer + '\'' +
-                ", sensorEventTopic='" + sensorEventTopic + '\'' +
-                ", hubEventTopic='" + hubEventTopic + '\'' +
-                '}';
-    }
 }

@@ -28,7 +28,6 @@ public class KafkaProducerService implements AutoCloseable {
     }
 
     public <T extends org.apache.avro.specific.SpecificRecordBase> void send(T value) {
-        System.out.println(value);
         String topic;
         if (value instanceof SensorEventAvro) {
             topic = propertiesConfig.getSensorEventTopic();
