@@ -1,22 +1,25 @@
 package ru.yandex.practicum.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.specific.SpecificRecordBase;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.Producer;
-import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.*;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.configuration.KafkaPropertiesConfig;
-import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
-import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
-
+import java.time.Instant;
+import java.util.EnumMap;
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 @Service
+@Slf4j
 public class KafkaProducerService implements AutoCloseable {
 
     private final KafkaPropertiesConfig propertiesConfig;
     private Producer<String, SpecificRecordBase> producer;
+    EnumMap<TopicType, String> topics;
 
     public KafkaProducerService(KafkaPropertiesConfig propertiesConfig) {
         this.propertiesConfig = propertiesConfig;
@@ -24,22 +27,27 @@ public class KafkaProducerService implements AutoCloseable {
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, propertiesConfig.getBootstrapServers());
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, propertiesConfig.getKeySerializer());
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, propertiesConfig.getValueSerializer());
+        topics =  new EnumMap<>(TopicType.class);
+        topics.put(TopicType.SENSOR_EVENTS, propertiesConfig.getSensorEventTopic());
+        topics.put(TopicType.HUB_EVENTS, propertiesConfig.getHubEventTopic());
         producer = new KafkaProducer<>(config);
     }
 
-    public <T extends org.apache.avro.specific.SpecificRecordBase> void send(T value) {
-        String topic;
-        if (value instanceof SensorEventAvro) {
-            topic = propertiesConfig.getSensorEventTopic();
-        } else if(value instanceof HubEventAvro) {
-            topic = propertiesConfig.getHubEventTopic();
-        } else {
-            throw new IllegalArgumentException("Неизвестная avro-схема" );
+    public <T extends SpecificRecordBase> void send(T value, String key, Instant timestamp, TopicType topicType) {
+        String topic = topics.get(topicType);
+        if (topic == null) {
+            throw new IllegalArgumentException("Неизвестный топик" );
         }
+        ProducerRecord producerRecord = new ProducerRecord<>(topic, null, timestamp.toEpochMilli(), key, value);
+        Future<RecordMetadata> future = producer.send(producerRecord);
         try {
-            producer.send(new ProducerRecord<>(topic, value));
-        } catch (Throwable e) {
-            e.printStackTrace();
+            future.get(10, TimeUnit.SECONDS);
+        } catch (TimeoutException e) {
+            // Превышено время ожидания
+            log.error("Превышено время ожидания");
+            future.cancel(true); // Отменяем задачу
+        } catch (InterruptedException | ExecutionException e) {
+            log.error("Возникла ошибка при отправке сообщения: ", e);
         }
     }
 
