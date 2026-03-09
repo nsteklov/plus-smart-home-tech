@@ -63,11 +63,19 @@ public class ScenarioAddedHubEventHandler extends BaseHubEventHandler<ScenarioAd
                 default:
                     throw new IllegalArgumentException("Не найден тип операции для условия: " + scenarioCondition);
             }
-            ScenarioConditionAvro scenarioConditionAvro = ScenarioConditionAvro.newBuilder()
+            ScenarioConditionAvro.Builder scenarioConditionAvroBuilder = ScenarioConditionAvro.newBuilder()
                     .setSensorId(scenarioCondition.getSensorId())
                     .setType(conditionTypeAvro)
-                    .setOperation(conditionOperationAvro)
-                    .setValue(scenarioCondition.getValueCase())
+                    .setOperation(conditionOperationAvro);
+            switch (scenarioCondition.getValueCase()) {
+                case INT_VALUE:
+                    scenarioConditionAvroBuilder.setValue(scenarioCondition.getIntValue());
+                    break;
+                case BOOL_VALUE:
+                    scenarioConditionAvroBuilder.setValue(scenarioCondition.getBoolValue());
+                    break;
+            }
+            ScenarioConditionAvro scenarioConditionAvro = scenarioConditionAvroBuilder
                     .build();
             ScenarioConditionsAvro.add(scenarioConditionAvro);
         }

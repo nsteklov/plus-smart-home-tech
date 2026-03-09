@@ -51,6 +51,7 @@ public class CollectorController extends CollectorControllerGrpc.CollectorContro
 
     @Override
     public void collectHubEvent(HubEventProto request, StreamObserver<Empty> responseObserver) {
+        System.out.println("Принято " + request);
         try {
             // проверяем, есть ли обработчик для полученного события
             if (hubEventHandlers.containsKey(request.getPayloadCase())) {

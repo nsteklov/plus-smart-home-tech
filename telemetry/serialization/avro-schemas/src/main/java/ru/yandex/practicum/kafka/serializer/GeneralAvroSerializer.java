@@ -20,10 +20,11 @@ public class GeneralAvroSerializer implements Serializer<SpecificRecordBase> {
     public byte[] serialize(String topic, SpecificRecordBase data) {
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             if (data != null) {
-                log.info("json: {}", data.toString());
+                log.info("serialize json: {}", data.toString());
                 DatumWriter<SpecificRecordBase> writer = new SpecificDatumWriter<>(data.getSchema());
                 encoder = encoderFactory.binaryEncoder(out, encoder);
                 writer.write(data, encoder);
+                log.info("serialize json 2: {}", data.toString());
                 encoder.flush();
             }
             return out.toByteArray();
