@@ -21,9 +21,6 @@ public class SmartHomeApplication {
 
         ConfigurableApplicationContext context = SpringApplication.run(SmartHomeApplication.class, args);
 
-//        // Получаем бин AggregationStarter из контекста и запускаем основную логику сервиса
-//        EventDataProducer eventDataProducer = context.getBean(EventDataProducer.class);
-//        eventDataProducer.sendEvents();
     }
 
 }
