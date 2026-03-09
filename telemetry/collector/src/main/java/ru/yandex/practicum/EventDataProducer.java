@@ -6,6 +6,7 @@ import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.grpc.telemetry.collector.CollectorControllerGrpc;
 import ru.yandex.practicum.grpc.telemetry.event.SensorEventProto;
+import ru.yandex.practicum.grpc.telemetry.event.SwitchSensorProto;
 import ru.yandex.practicum.grpc.telemetry.event.TemperatureSensorProto;
 
 @Component
@@ -61,6 +62,22 @@ public class EventDataProducer {
                         TemperatureSensorProto.newBuilder()
                                 .setTemperatureC(123456)
                                 .setTemperatureF(234234)
+                                .build()
+                )
+                .setHubId("234")
+                .build();
+        log.info("Отправляю данные 3: {}", temperatureSensorProto3.getAllFields());
+        collectorStub.collectSensorEvent(temperatureSensorProto3);
+
+        //Переключатель
+        SensorEventProto switchSensorProto1 = SensorEventProto.newBuilder()
+                .setId("123")
+                .setTimestamp(Timestamp.newBuilder()
+                        .setSeconds(1234)
+                        .setNanos(5234234)
+                ).setSwitchSensor(
+                        SwitchSensorProto.newBuilder()
+                                .setState(true)
                                 .build()
                 )
                 .setHubId("234")
