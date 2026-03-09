@@ -40,26 +40,6 @@ public class EventController extends CollectorControllerGrpc.CollectorController
                 .collect(Collectors.toMap(HubEventHandler::getMessageType, Function.identity()));
     }
 
-//    @PostMapping("/sensors")
-//    public void collectSensorEvent(@RequestBody @Valid SensorEvent request) {
-//        log.info("json: {}", request.toString());
-//        SensorEventHandler sensorEventHandler = sensorEventHandlers.get(request.getType());
-//        if (sensorEventHandler == null) {
-//            throw new IllegalArgumentException("Не найден обработчик для события: " + request.getType());
-//        }
-//        sensorEventHandler.handle(request);
-//    }
-//
-//    @PostMapping("/hubs")
-//    public void collectHubEvent(@RequestBody @Valid HubEvent request) {
-//        log.info("json: {}", request.toString());
-//        HubEventHandler hubEventHandler = hubEventHandlers.get(request.getType());
-//        if (hubEventHandler == null) {
-//            throw new IllegalArgumentException("Не найден обработчик для события: " + request.getType());
-//        }
-//        hubEventHandler.handle(request);
-//    }
-
     @Override
     public void collectSensorEvent(SensorEventProto request, StreamObserver<Empty> responseObserver) {
         try {
@@ -67,6 +47,27 @@ public class EventController extends CollectorControllerGrpc.CollectorController
             if (sensorEventHandlers.containsKey(request.getPayloadCase())) {
                 // если обработчик найден, передаём событие ему на обработку
                 sensorEventHandlers.get(request.getPayloadCase()).handle(request);
+            } else {
+                throw new IllegalArgumentException("Не могу найти обработчик для события " + request.getPayloadCase());
+            }
+
+            // после обработки события возвращаем ответ клиенту
+            responseObserver.onNext(Empty.getDefaultInstance());
+            // и завершаем обработку запроса
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            // в случае исключения отправляем ошибку клиенту
+            responseObserver.onError(new StatusRuntimeException(Status.fromThrowable(e)));
+        }
+    }
+
+    @Override
+    public void collectHubEvent(HubEventProto request, StreamObserver<Empty> responseObserver) {
+        try {
+            // проверяем, есть ли обработчик для полученного события
+            if (hubEventHandlers.containsKey(request.getPayloadCase())) {
+                // если обработчик найден, передаём событие ему на обработку
+                hubEventHandlers.get(request.getPayloadCase()).handle(request);
             } else {
                 throw new IllegalArgumentException("Не могу найти обработчик для события " + request.getPayloadCase());
             }

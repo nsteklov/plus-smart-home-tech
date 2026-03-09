@@ -35,6 +35,11 @@
             <version>1.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>net.devh</groupId>
+            <artifactId>grpc-client-spring-boot-starter</artifactId>
+            <version>${grpc-spring-boot-starter.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
