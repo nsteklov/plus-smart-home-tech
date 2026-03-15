@@ -2,10 +2,7 @@ package ru.yandex.practicum.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
-
-import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.Set;
 
 @Entity
 @Table(name = "scenarios", schema = "public")

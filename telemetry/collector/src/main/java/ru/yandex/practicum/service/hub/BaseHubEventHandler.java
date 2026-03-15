@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.specific.SpecificRecordBase;
 import ru.yandex.practicum.grpc.telemetry.event.HubEventProto;
 import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
-import ru.yandex.practicum.model.HubEvent;
 import ru.yandex.practicum.service.KafkaProducerService;
 import ru.yandex.practicum.service.TopicType;
 

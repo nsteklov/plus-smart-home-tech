@@ -4,9 +4,6 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.grpc.telemetry.event.HubEventProto;
 import ru.yandex.practicum.grpc.telemetry.event.ScenarioRemovedEventProto;
 import ru.yandex.practicum.kafka.telemetry.event.ScenarioRemovedEventAvro;
-import ru.yandex.practicum.model.HubEvent;
-import ru.yandex.practicum.model.HubEventType;
-import ru.yandex.practicum.model.ScenarioRemovedEvent;
 import ru.yandex.practicum.service.KafkaProducerService;
 
 @Component(value = "SCENARIO_REMOVED")

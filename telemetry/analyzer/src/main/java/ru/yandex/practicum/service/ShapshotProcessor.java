@@ -4,9 +4,7 @@ import com.google.protobuf.Timestamp;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.apache.kafka.clients.consumer.*;
-import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
-import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
 import org.springframework.stereotype.Component;
@@ -14,7 +12,6 @@ import ru.yandex.practicum.configuration.KafkaPropertiesConfigAnalyzer;
 import ru.yandex.practicum.grpc.telemetry.event.ActionTypeProto;
 import ru.yandex.practicum.grpc.telemetry.event.DeviceActionProto;
 import ru.yandex.practicum.grpc.telemetry.event.DeviceActionRequest;
-import ru.yandex.practicum.grpc.telemetry.event.SensorEventProto;
 import ru.yandex.practicum.kafka.telemetry.event.*;
 import ru.yandex.practicum.model.*;
 import ru.yandex.practicum.repository.ActionRepository;
@@ -27,7 +24,6 @@ import ru.yandex.practicum.grpc.telemetry.event.*;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -38,21 +34,14 @@ public class ShapshotProcessor {
     private Consumer<String, SensorsSnapshotAvro> consumer;
     private Producer<String, SensorsSnapshotAvro> producer;
     private String snapshotTopic;
-    private final SensorRepository sensorRepository;
     private final ScenarioRepository scenarioRepository;
-    private final ConditionRepository conditionRepository;
-    private final ActionRepository actionRepository;
 
     @GrpcClient("hub-router")
     private HubRouterControllerGrpc.HubRouterControllerBlockingStub hubRouterClient;
 
     public ShapshotProcessor(KafkaPropertiesConfigAnalyzer propertiesConfig, SensorRepository sensorRepository, ScenarioRepository scenarioRepository, ConditionRepository conditionRepository, ActionRepository actionRepository) {
         this.propertiesConfig = propertiesConfig;
-        this.sensorRepository = sensorRepository;
         this.scenarioRepository = scenarioRepository;
-        this.conditionRepository = conditionRepository;
-        this.actionRepository = actionRepository;
-        this.hubRouterClient = hubRouterClient;
 
         Properties consumerConfig = new Properties();
         consumerConfig.put(ConsumerConfig.CLIENT_ID_CONFIG, propertiesConfig.getClientId());
@@ -93,6 +82,8 @@ public class ShapshotProcessor {
         } catch (WakeupException | InterruptedException ignores) {
             // Ничего здесь не делаем.
             // Закрываем консьюмер в finally блоке.
+        } catch (RuntimeException e) {
+            log.error("Error occurred while consuming records", e);
         } finally {
             // Перед закрытием консьюмера убеждаемся, что оффсеты обработанных сообщений
             // точно зафиксированы, вызываем для этого метод синхронной фиксации
@@ -101,8 +92,6 @@ public class ShapshotProcessor {
             } finally {
                 log.info("Закрываем консьюмер");
                 consumer.close();
-//                log.info("Закрываем продюсер");
-//                producer.close();
             }
         }
     }
@@ -200,7 +189,11 @@ public class ShapshotProcessor {
                                 )
                                 .build();
                         log.info("Отправляю данные о действии: {} от условия: {}", deviceActionRequest, condition);
-                        hubRouterClient.handleDeviceAction(deviceActionRequest);
+                        try {
+                            hubRouterClient.handleDeviceAction(deviceActionRequest);
+                        } catch (Exception e) {
+                            log.error("Возникла ошибка при отправке в hub-router", e);
+                        }
                     }
                 }
             }

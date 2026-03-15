@@ -4,9 +4,6 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.grpc.telemetry.event.SensorEventProto;
 import ru.yandex.practicum.grpc.telemetry.event.SwitchSensorProto;
 import ru.yandex.practicum.kafka.telemetry.event.SwitchSensorAvro;
-import ru.yandex.practicum.model.SensorEvent;
-import ru.yandex.practicum.model.SensorEventType;
-import ru.yandex.practicum.model.SwitchSensorEvent;
 import ru.yandex.practicum.service.KafkaProducerService;
 
 @Component(value = "SWITCH_SENSOR_EVENT")

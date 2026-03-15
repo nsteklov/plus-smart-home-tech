@@ -3,7 +3,6 @@ package ru.yandex.practicum.service.hub;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.grpc.telemetry.event.*;
 import ru.yandex.practicum.kafka.telemetry.event.*;
-import ru.yandex.practicum.model.*;
 import ru.yandex.practicum.service.KafkaProducerService;
 
 import java.util.ArrayList;

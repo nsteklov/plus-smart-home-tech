@@ -6,7 +6,6 @@ import ru.yandex.practicum.grpc.telemetry.event.DeviceTypeProto;
 import ru.yandex.practicum.grpc.telemetry.event.HubEventProto;
 import ru.yandex.practicum.kafka.telemetry.event.DeviceAddedEventAvro;
 import ru.yandex.practicum.kafka.telemetry.event.DeviceTypeAvro;
-import ru.yandex.practicum.model.*;
 import ru.yandex.practicum.service.KafkaProducerService;
 
 @Component(value = "DEVICE_ADDED")

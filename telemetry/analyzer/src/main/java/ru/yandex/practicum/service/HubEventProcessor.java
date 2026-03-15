@@ -2,8 +2,6 @@ package ru.yandex.practicum.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.*;
-import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
 import org.springframework.stereotype.Component;
@@ -18,10 +16,6 @@ import ru.yandex.practicum.repository.SensorRepository;
 
 import java.time.Duration;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 @Slf4j
 @Component
@@ -142,6 +136,7 @@ public class HubEventProcessor implements Runnable {
             if (!oldSensor.getHubId().equals(hubId)) {
                 oldSensor.setHubId(hubId);
                 sensorRepository.save(oldSensor);
+                log.info("Обновили устройство {}", deviceAddedEventAvro);
             }
         }
     }

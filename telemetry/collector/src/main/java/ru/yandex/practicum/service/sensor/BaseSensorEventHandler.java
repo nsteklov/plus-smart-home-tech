@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.specific.SpecificRecordBase;
 import ru.yandex.practicum.grpc.telemetry.event.SensorEventProto;
 import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
-import ru.yandex.practicum.model.SensorEvent;
 import ru.yandex.practicum.service.KafkaProducerService;
 import ru.yandex.practicum.service.TopicType;
 
