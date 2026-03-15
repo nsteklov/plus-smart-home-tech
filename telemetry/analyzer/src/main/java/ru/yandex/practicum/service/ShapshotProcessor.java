@@ -82,7 +82,7 @@ public class ShapshotProcessor {
                 // фиксируем максимальный оффсет обработанных записей
                 consumer.commitAsync();
             }
-        } catch (WakeupException | InterruptedException ignores) {
+        } catch (WakeupException ignores) {
             // Ничего здесь не делаем.
             // Закрываем консьюмер в finally блоке.
         } finally {
