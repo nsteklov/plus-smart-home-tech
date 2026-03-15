@@ -9,8 +9,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Setter
 public class KafkaPropertiesConfigAnalyzer {
     private String bootstrapServers;
-    private String clientId;
-    private String groupId;
+    private String clientIdHub;
+    private String groupIdHub;
+    private String clientIdSnapshot;
+    private String groupIdSnapshot;
     private String keyDeserializer;
     private String hubValueDeserializer;
     private String snapshotValueDeserializer;

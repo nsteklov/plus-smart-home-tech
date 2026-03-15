@@ -3,14 +3,14 @@ package ru.yandex.practicum;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.service.HubEventProcessor;
-import ru.yandex.practicum.service.ShapshotProcessor;
+import ru.yandex.practicum.service.SnapshotProcessor;
 
 @Component
 public class AnalyzerRunner implements CommandLineRunner {
     private final HubEventProcessor hubEventProcessor;
-    private final ShapshotProcessor snapshotProcessor;
+    private final SnapshotProcessor snapshotProcessor;
 
-    public AnalyzerRunner(HubEventProcessor hubEventProcessor, ShapshotProcessor snapshotProcessor) {
+    public AnalyzerRunner(HubEventProcessor hubEventProcessor, SnapshotProcessor snapshotProcessor) {
         this.hubEventProcessor = hubEventProcessor;
         this.snapshotProcessor = snapshotProcessor;
     }
