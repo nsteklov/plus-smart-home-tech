@@ -67,7 +67,11 @@ public class HubEventProcessor implements Runnable {
                 int count = 0;
                 for (ConsumerRecord<String, HubEventAvro> record : records) {
                     // обрабатываем очередную запись
-                    handleRecord(record);
+                    try {
+                        handleRecord(record);
+                    } catch (Exception e) {
+                        log.error("Возникла ошибка при обработке сообщения", e);
+                    }
                     // фиксируем оффсеты обработанных записей, если нужно
                     manageOffsets(record, count, consumer);
                     count++;

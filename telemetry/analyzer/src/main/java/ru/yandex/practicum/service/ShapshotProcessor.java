@@ -32,7 +32,6 @@ public class ShapshotProcessor {
     private static final Map<TopicPartition, OffsetAndMetadata> currentOffsets = new HashMap<>();
     private final KafkaPropertiesConfigAnalyzer propertiesConfig;
     private Consumer<String, SensorsSnapshotAvro> consumer;
-    private Producer<String, SensorsSnapshotAvro> producer;
     private String snapshotTopic;
     private final ScenarioRepository scenarioRepository;
 
