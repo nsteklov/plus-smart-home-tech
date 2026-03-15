@@ -71,7 +71,11 @@ public class ShapshotProcessor {
                 int count = 0;
                 for (ConsumerRecord<String, SensorsSnapshotAvro> record : records) {
                     // обрабатываем очередную запись
-                    handleRecord(record);
+                    try {
+                        handleRecord(record);
+                    } catch (Exception e) {
+                        log.error("Возникла ошибка при обработке сообщения", e);
+                    }
                     // фиксируем оффсеты обработанных записей, если нужно
                     manageOffsets(record, count, consumer);
                     count++;
@@ -82,8 +86,6 @@ public class ShapshotProcessor {
         } catch (WakeupException | InterruptedException ignores) {
             // Ничего здесь не делаем.
             // Закрываем консьюмер в finally блоке.
-        } catch (RuntimeException e) {
-            log.error("Error occurred while consuming records", e);
         } finally {
             // Перед закрытием консьюмера убеждаемся, что оффсеты обработанных сообщений
             // точно зафиксированы, вызываем для этого метод синхронной фиксации
