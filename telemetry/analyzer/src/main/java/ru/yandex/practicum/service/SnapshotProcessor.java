@@ -157,7 +157,7 @@ public class SnapshotProcessor {
                             .filter(curAction -> curAction.getKey().equals(entry.getKey()))
                             .map(curAction -> curAction.getValue())
                             .findFirst();
-                    log.info("Пытаемся получить действие 2");
+                    log.info("Все действия " +scenario.getActions());
                     if (optAction.isPresent()) {
                         action =  optAction.get();
                         log.info("Получили действие " + action);
