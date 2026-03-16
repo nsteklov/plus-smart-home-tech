@@ -22,6 +22,8 @@ import ru.yandex.practicum.grpc.telemetry.hubrouter.HubRouterControllerGrpc;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -157,10 +159,15 @@ public class SnapshotProcessor {
                             .filter(curAction -> curAction.getKey().equals(entry.getKey()))
                             .map(curAction -> curAction.getValue())
                             .findFirst();
-                    Optional<Action> optAct = scenario.getActions().entrySet().stream()
-                            .map(curAction -> curAction.getValue())
-                            .findFirst();
-                    log.info("Действие " +  optAct.get());
+                    List<String> optAct = scenario.getActions().entrySet().stream()
+                            .map(curAction -> curAction.getKey())
+                            .collect(Collectors.toList());
+                    List<String> optCon = scenario.getConditions().entrySet().stream()
+                            .map(curAction -> curAction.getKey())
+                            .collect(Collectors.toList());
+                    log.info("Действие " + optAct);
+                    log.info("Условие " + optCon);
+                    log.info("Ключ сенсора " + entry.getKey());
                     if (optAction.isPresent()) {
                         action =  optAction.get();
                         log.info("Получили действие " + action);
