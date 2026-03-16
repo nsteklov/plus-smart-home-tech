@@ -157,7 +157,7 @@ public class SnapshotProcessor {
                             .filter(curAction -> curAction.getKey().equals(entry.getKey()))
                             .map(curAction -> curAction.getValue())
                             .findFirst();
-
+                    log.info("Пытаемся получить действие 2");
                     if (optAction.isPresent()) {
                         action =  optAction.get();
                         log.info("Получили действие " + action);
@@ -201,6 +201,7 @@ public class SnapshotProcessor {
                             log.error("Возникла ошибка при отправке в hub-router", e);
                         }
                     }
+                    log.info("Не нашли действие");
                 }
             }
         }
