@@ -32,6 +32,8 @@ public class SnapshotProcessor {
     private Consumer<String, SensorsSnapshotAvro> consumer;
     private String snapshotTopic;
     private final ScenarioRepository scenarioRepository;
+    private final ConditionRepository conditionRepository;
+    private final ActionRepository actionRepository;
 
     @GrpcClient("hub-router")
     private HubRouterControllerGrpc.HubRouterControllerBlockingStub hubRouterClient;
@@ -39,6 +41,8 @@ public class SnapshotProcessor {
     public SnapshotProcessor(KafkaPropertiesConfigAnalyzer propertiesConfig, SensorRepository sensorRepository, ScenarioRepository scenarioRepository, ConditionRepository conditionRepository, ActionRepository actionRepository) {
         this.propertiesConfig = propertiesConfig;
         this.scenarioRepository = scenarioRepository;
+        this.conditionRepository = conditionRepository;
+        this.actionRepository = actionRepository;
 
         Properties consumerConfig = new Properties();
         consumerConfig.put(ConsumerConfig.CLIENT_ID_CONFIG, propertiesConfig.getClientIdSnapshot());
@@ -117,13 +121,12 @@ public class SnapshotProcessor {
         SensorsSnapshotAvro event = record.value();
         Map<String, SensorStateAvro> sensorsState = event.getSensorsState();
         String hubId = event.getHubId();
-        List<Scenario> scenarios = scenarioRepository.findByHubId(hubId);
+        List<Scenario> scenarios = scenarioRepository.findByHubIdWithConditionsAndActions(hubId);
         System.out.println(scenarios);
         Condition condition;
         Action action;
         for (Scenario scenario : scenarios) {
             for (Map.Entry<String, SensorStateAvro> entry : sensorsState.entrySet()) {
-                System.out.println(entry);
                 Optional<Condition> optCondition = scenario.getConditions().entrySet().stream()
                         .filter(curCondition -> curCondition.getKey().equals(entry.getKey()))
                         .map(curCondition -> curCondition.getValue())

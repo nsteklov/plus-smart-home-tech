@@ -1,6 +1,8 @@
 package ru.yandex.practicum.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import ru.yandex.practicum.model.Scenario;
 
 import java.util.List;
@@ -9,4 +11,11 @@ import java.util.Optional;
 public interface ScenarioRepository extends JpaRepository<Scenario, Long> {
     List<Scenario> findByHubId(String hubId);
     Optional<Scenario> findByHubIdAndName(String hubId, String name);
+
+
+    @Query("select distinct s from Scenario s " +
+            "left join fetch s.conditions c " +
+            "left join fetch s.actions a " +
+            "where s.hubId = :hubId")
+    List<Scenario> findByHubIdWithConditionsAndActions(@Param("hubId") String hubId);
 }

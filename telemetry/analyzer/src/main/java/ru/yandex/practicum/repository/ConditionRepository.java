@@ -1,6 +1,8 @@
 package ru.yandex.practicum.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import ru.yandex.practicum.model.Condition;
 import ru.yandex.practicum.model.ConditionOperation;
 import ru.yandex.practicum.model.ConditionType;
