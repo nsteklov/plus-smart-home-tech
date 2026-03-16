@@ -157,7 +157,8 @@ public class SnapshotProcessor {
                             .filter(curAction -> curAction.getKey().equals(entry.getKey()))
                             .map(curAction -> curAction.getValue())
                             .findFirst();
-                    log.info("Все действия " +scenario.getActions());
+                    log.info("Все действия " +scenario.getActions().entrySet());
+                    log.info("Все условия " +scenario.getConditions().entrySet());
                     log.info("Ключ устройства " +entry.getKey());
                     if (optAction.isPresent()) {
                         action =  optAction.get();
