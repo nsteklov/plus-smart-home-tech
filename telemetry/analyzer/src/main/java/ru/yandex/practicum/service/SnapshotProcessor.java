@@ -152,6 +152,7 @@ public class SnapshotProcessor {
                             || condition.getType() == ConditionType.SWITCH && ((SwitchSensorAvro) sensorAvro).getState() == false && conditionMet(condition.getOperation(), 0, condition.getValue()))
                     || sensorAvro instanceof TemperatureSensorAvro
                         && condition.getType() == ConditionType.TEMPERATURE && conditionMet(condition.getOperation(), ((TemperatureSensorAvro) sensorAvro).getTemperatureC(), condition.getValue())) {
+                    log.info("Пытаемся получить действие");
                     Optional<Action> optAction = scenario.getActions().entrySet().stream()
                             .filter(curAction -> curAction.getKey().equals(entry.getKey()))
                             .map(curAction -> curAction.getValue())
