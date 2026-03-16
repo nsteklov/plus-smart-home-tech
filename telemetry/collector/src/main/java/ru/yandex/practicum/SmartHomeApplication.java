@@ -12,13 +12,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 public class SmartHomeApplication {
 
     public static void main(String[] args) {
-        //SpringApplication.run(SmartHomeApplication.class, args);
-
         ConfigurableApplicationContext context = SpringApplication.run(SmartHomeApplication.class, args);
-
-                // Получаем бин AggregationStarter из контекста и запускаем основную логику сервиса
-        EventDataProducer eventDataProducer = context.getBean(EventDataProducer.class);
-        eventDataProducer.sendEvents();
     }
 
 }
