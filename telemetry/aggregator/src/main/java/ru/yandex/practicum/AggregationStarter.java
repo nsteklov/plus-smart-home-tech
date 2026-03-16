@@ -3,16 +3,12 @@ package ru.yandex.practicum;
 import java.time.Duration;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.avro.specific.SpecificRecordBase;
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.clients.producer.*;
 import org.apache.kafka.common.TopicPartition;
-import org.apache.kafka.common.quota.ClientQuotaAlteration;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.configuration.KafkaPropertiesConfigAggregator;
-import ru.yandex.practicum.kafka.deserializer.SensorEventDeserializer;
 import org.apache.kafka.common.errors.WakeupException;
-import ru.yandex.practicum.kafka.telemetry.event.ClimateSensorAvro;
 import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
 import ru.yandex.practicum.kafka.telemetry.event.SensorStateAvro;
 import ru.yandex.practicum.kafka.telemetry.event.SensorsSnapshotAvro;
@@ -169,11 +165,14 @@ public class AggregationStarter {
 
         // если дошли до сюда, значит, пришли новые данные и
         // снапшот нужно обновить
+        Instant timestamp = Instant.ofEpochSecond(
+                event.getTimestamp().getEpochSecond(),
+                event.getTimestamp().getNano());
         SensorStateAvro state = SensorStateAvro.newBuilder()
-                .setTimestamp(event.getTimestamp())
+                .setTimestamp(timestamp)
                 .setData(event.getPayload())
                 .build();
-        snapshot.setTimestamp(event.getTimestamp());
+        snapshot.setTimestamp(timestamp);
         snapshot.getSensorsState().put(event.getId(), state);
         snapshots.put(event.getHubId(), snapshot);
         return Optional.of(snapshot);

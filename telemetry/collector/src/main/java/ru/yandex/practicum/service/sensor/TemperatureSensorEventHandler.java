@@ -4,9 +4,6 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.grpc.telemetry.event.SensorEventProto;
 import ru.yandex.practicum.grpc.telemetry.event.TemperatureSensorProto;
 import ru.yandex.practicum.kafka.telemetry.event.TemperatureSensorAvro;
-import ru.yandex.practicum.model.SensorEvent;
-import ru.yandex.practicum.model.SensorEventType;
-import ru.yandex.practicum.model.TemperatureSensorEvent;
 import ru.yandex.practicum.service.KafkaProducerService;
 
 @Component(value = "TEMPERATURE_SENSOR_EVENT")
