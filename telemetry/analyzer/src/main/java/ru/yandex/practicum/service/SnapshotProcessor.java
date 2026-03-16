@@ -135,7 +135,9 @@ public class SnapshotProcessor {
                     continue;
                 }
                 condition = optCondition.get();
+                log.info("Получили условие " + condition);
                 Object sensorAvro = entry.getValue().getData();
+                log.info("Получили данные датчика " + sensorAvro);
                 if (sensorAvro instanceof ClimateSensorAvro
                         && (condition.getType() == ConditionType.TEMPERATURE && conditionMet(condition.getOperation(), ((ClimateSensorAvro) sensorAvro).getTemperatureC(), condition.getValue())
                             || condition.getType() == ConditionType.HUMIDITY && conditionMet(condition.getOperation(), ((ClimateSensorAvro) sensorAvro).getHumidity(), condition.getValue())
@@ -157,6 +159,7 @@ public class SnapshotProcessor {
 
                     if (optAction.isPresent()) {
                         action =  optAction.get();
+                        log.info("Получили действие " + action);
                         ActionTypeProto actionTypeProto;
                         switch (action.getType()) {
                             case ACTIVATE:
