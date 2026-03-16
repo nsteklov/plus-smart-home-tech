@@ -14,8 +14,8 @@ public interface ScenarioRepository extends JpaRepository<Scenario, Long> {
 
 
     @Query("select distinct s from Scenario s " +
-            "left join fetch s.conditions c " +
-            "left join fetch s.actions a " +
+            "left join s.conditions c " +
+            "left join s.actions a " +
             "where s.hubId = :hubId")
     List<Scenario> findByHubIdWithConditionsAndActions(@Param("hubId") String hubId);
 }
