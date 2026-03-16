@@ -132,7 +132,6 @@ public class HubEventProcessor implements Runnable {
             Sensor newSensor = new Sensor();
             newSensor.setId(deviceAddedEventAvro.getId());
             newSensor.setHubId(hubId);
-            System.out.println("Вася " + newSensor);
             sensorRepository.save(newSensor);
             log.info("Записали новое устройство {}", deviceAddedEventAvro);
         } else {

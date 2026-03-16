@@ -126,7 +126,6 @@ public class SnapshotProcessor {
         List<Scenario> scenarios = scenarioRepository.findByHubIdWithConditionsAndActions(hubId);
         System.out.println(scenarios);
         Condition condition;
-        Action action;
         for (Scenario scenario : scenarios) {
             for (Map.Entry<String, SensorStateAvro> entry : sensorsState.entrySet()) {
                 Optional<Condition> optCondition = scenario.getConditions().entrySet().stream()
@@ -154,23 +153,7 @@ public class SnapshotProcessor {
                             || condition.getType() == ConditionType.SWITCH && ((SwitchSensorAvro) sensorAvro).getState() == false && conditionMet(condition.getOperation(), 0, condition.getValue()))
                     || sensorAvro instanceof TemperatureSensorAvro
                         && condition.getType() == ConditionType.TEMPERATURE && conditionMet(condition.getOperation(), ((TemperatureSensorAvro) sensorAvro).getTemperatureC(), condition.getValue())) {
-                    log.info("Пытаемся получить действие");
-                    Optional<Action> optAction = scenario.getActions().entrySet().stream()
-                            .filter(curAction -> curAction.getKey().equals(entry.getKey()))
-                            .map(curAction -> curAction.getValue())
-                            .findFirst();
-                    List<String> optAct = scenario.getActions().entrySet().stream()
-                            .map(curAction -> curAction.getKey())
-                            .collect(Collectors.toList());
-                    List<String> optCon = scenario.getConditions().entrySet().stream()
-                            .map(curAction -> curAction.getKey())
-                            .collect(Collectors.toList());
-                    log.info("Действие " + optAct);
-                    log.info("Условие " + optCon);
-                    log.info("Ключ сенсора " + entry.getKey());
-                    if (optAction.isPresent()) {
-                        action =  optAction.get();
-                        log.info("Получили действие " + action);
+                    for (Action action : scenario.getActions().values()) {
                         ActionTypeProto actionTypeProto;
                         switch (action.getType()) {
                             case ACTIVATE:
@@ -211,7 +194,6 @@ public class SnapshotProcessor {
                             log.error("Возникла ошибка при отправке в hub-router", e);
                         }
                     }
-                    log.info("Не нашли действие");
                 }
             }
         }
