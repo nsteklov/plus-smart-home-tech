@@ -153,8 +153,9 @@ public class SnapshotProcessor {
                             || condition.getType() == ConditionType.SWITCH && ((SwitchSensorAvro) sensorAvro).getState() == false && conditionMet(condition.getOperation(), 0, condition.getValue()))
                     || sensorAvro instanceof TemperatureSensorAvro
                         && condition.getType() == ConditionType.TEMPERATURE && conditionMet(condition.getOperation(), ((TemperatureSensorAvro) sensorAvro).getTemperatureC(), condition.getValue())) {
-                    for (Action action : scenario.getActions().values()) {
+                    for (Map.Entry<String, Action> entryAction : scenario.getActions().entrySet()) {
                         ActionTypeProto actionTypeProto;
+                        Action action =  entryAction.getValue();
                         switch (action.getType()) {
                             case ACTIVATE:
                                 actionTypeProto = ActionTypeProto.ACTIVATE;
@@ -176,7 +177,7 @@ public class SnapshotProcessor {
                                 .setScenarioName(scenario.getName())
                                 .setAction(
                                         DeviceActionProto.newBuilder()
-                                                .setSensorId(entry.getKey())
+                                                .setSensorId(entryAction.getKey())
                                                 .setType(actionTypeProto)
                                                 .setValue(action.getValue())
                                                 .build()
