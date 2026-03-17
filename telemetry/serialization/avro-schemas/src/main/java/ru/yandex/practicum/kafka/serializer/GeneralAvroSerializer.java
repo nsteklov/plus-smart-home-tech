@@ -24,7 +24,6 @@ public class GeneralAvroSerializer implements Serializer<SpecificRecordBase> {
                 DatumWriter<SpecificRecordBase> writer = new SpecificDatumWriter<>(data.getSchema());
                 encoder = encoderFactory.binaryEncoder(out, encoder);
                 writer.write(data, encoder);
-                log.info("serialize json 2: {}", data.toString());
                 encoder.flush();
             }
             return out.toByteArray();
