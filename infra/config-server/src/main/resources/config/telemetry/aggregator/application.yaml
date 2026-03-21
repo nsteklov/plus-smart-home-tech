@@ -1,0 +1,22 @@
+aggregator:
+  kafka:
+
+    # Общие настройки
+    bootstrapServers: localhost:9092
+
+    producer:
+      keySerializer: org.apache.kafka.common.serialization.StringSerializer
+      valueSerializer: ru.yandex.practicum.kafka.serializer.GeneralAvroSerializer
+
+    consumer:
+      clientId: aggregator-client-1
+      groupId: aggregator-group
+      keyDeserializer: org.apache.kafka.common.serialization.StringDeserializer
+      valueDeserializer: ru.yandex.practicum.kafka.deserializer.SensorEventDeserializer
+      maxPollRecordsConfig: 100
+      fetchMaxBytesConfig: 3072000
+      maxPartitionFetchBytesConfig: 307200
+
+    topics:
+      sensorEventTopic: telemetry.sensors.v1
+      snapshotTopic: telemetry.snapshots.v1

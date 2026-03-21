@@ -1,0 +1,21 @@
+collector:
+  # Общие настройки
+  bootstrapServers: localhost:9092
+
+  # Producer настройки
+  producer:
+    keySerializer: org.apache.kafka.common.serialization.StringSerializer
+    valueSerializer: ru.yandex.practicum.kafka.serializer.GeneralAvroSerializer
+
+  # Топики
+  topics:
+    sensorEventTopic: telemetry.sensors.v1
+    hubEventTopic: telemetry.hubs.v1
+
+grpc:
+  client:
+    collector:
+      address: static://localhost:9090
+      enableKeepAlive: true
+      keepAliveWithoutCalls: true
+      negotiationType: plaintext

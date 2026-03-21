@@ -1,10 +1,11 @@
 package ru.yandex.practicum.configuration;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@ConfigurationProperties(prefix = "analyzer")
+@ConfigurationProperties("analyzer")
 @Getter
 @Setter
 public class KafkaPropertiesConfigAnalyzer {
