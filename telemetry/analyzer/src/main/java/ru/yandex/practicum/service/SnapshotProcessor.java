@@ -122,7 +122,6 @@ public class SnapshotProcessor {
         Map<String, SensorStateAvro> sensorsState = event.getSensorsState();
         String hubId = event.getHubId();
         List<Scenario> scenarios = scenarioRepository.findByHubIdWithConditionsAndActions(hubId);
-        System.out.println(scenarios);
         Condition condition;
         for (Scenario scenario : scenarios) {
             for (Map.Entry<String, SensorStateAvro> entry : sensorsState.entrySet()) {

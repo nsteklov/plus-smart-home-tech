@@ -1,0 +1,17 @@
+services:
+  db:
+    image: postgres:16.1
+    container_name: postgres3
+    ports:
+      - "7432:5432"
+    volumes:
+      - ./volumes/postgres:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=shopping-cart
+      - POSTGRES_USER=dbuser
+      - POSTGRES_PASSWORD=12345
+    healthcheck:
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      timeout: 5s
+      interval: 5s
+      retries: 10
