@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.commerce.dto.ProductDto;
-import ru.yandex.practicum.commerce.dto.SetProductQuantityStateRequest;
 
 @RestController
 @RequestMapping(path = "/api/v1/shopping-store")
@@ -31,7 +30,7 @@ public class ProductController {
             @RequestParam String category,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            @RequestParam (required = false) String[] sort) {
+            @RequestParam (required = false) String sort) {
 
         log.info("GET запрос на получение товаров по категории: {}", category);
         return productService.getProductsByCategory(category, page, size, sort);
@@ -53,9 +52,9 @@ public class ProductController {
 
     @PostMapping("/quantityState")
     @ResponseStatus(HttpStatus.OK)
-    public Boolean updateQuantityState(@RequestBody SetProductQuantityStateRequest setProductQuantityStateRequest) {
-        log.info("POST запрос на изменение стаутса количества товара: {}", setProductQuantityStateRequest);
-        return productService.updateQuantityState(setProductQuantityStateRequest);
+    public Boolean updateQuantityState(@RequestParam String productId, @RequestParam String quantityState) {
+        log.info("POST запрос на изменение стаутса количества товара: {} {}", productId,  quantityState);
+        return productService.updateQuantityState(productId, quantityState);
     }
 
     @GetMapping("/{productId}")

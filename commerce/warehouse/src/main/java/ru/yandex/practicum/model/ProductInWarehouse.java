@@ -2,6 +2,7 @@ package ru.yandex.practicum.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -33,5 +34,5 @@ public class ProductInWarehouse {
     private Double weight;
 
     @Column
-    private Integer quantity;
+    private Integer quantity = 0;
 }

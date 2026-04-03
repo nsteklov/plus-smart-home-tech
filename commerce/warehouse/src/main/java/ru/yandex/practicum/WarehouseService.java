@@ -52,7 +52,7 @@ public class WarehouseService {
 
         UUID uuid;
         try {
-            uuid = UUID.fromString(newProductWarehouseRequest.getProductId());
+            uuid = UUID.fromString(newProductWarehouseRequest.getProductId().replace("\"", ""));
         } catch (IllegalArgumentException e) {
             throw new ValidationException("Передан некорректный формат UUID " + newProductWarehouseRequest.getProductId());
         }
@@ -69,9 +69,9 @@ public class WarehouseService {
 
     public BookedProductsDto checkProductsInWarehouse(ShoppingCartDto shoppingCartDto) {
 
-        Map<UUID, Integer> productsInShoppingCart = shoppingCartDto.getProducts();
-        List<UUID> productIds = shoppingCartDto.getProducts().entrySet().stream()
-                .map(Map.Entry::getKey)
+        Map<String, Integer> productsInShoppingCart = shoppingCartDto.getProducts();
+        List<UUID> productIds = shoppingCartDto.getProducts().keySet().stream()
+                .map(UUID::fromString)
                 .collect(Collectors.toList());
         List<ProductInWarehouse> productsInWarehouse = productRepository.findByProductIds(productIds);
         Map<UUID, Integer> productsInWarehouseMap = productsInWarehouse.stream()
@@ -81,12 +81,13 @@ public class WarehouseService {
                 ));
         boolean lowQuantity = false;
         String errorMessage = "На складе не хватает товаров с UUID: ";
-        for (Map.Entry<UUID, Integer> entry : productsInShoppingCart.entrySet()) {
-            if (!productsInWarehouseMap.containsKey(entry.getKey()) || productsInWarehouseMap.get(entry.getKey()) < entry.getValue()) {
+        for (Map.Entry<String, Integer> entry : productsInShoppingCart.entrySet()) {
+            if (!productsInWarehouseMap.containsKey(UUID.fromString(entry.getKey())) || productsInWarehouseMap.get(UUID.fromString(entry.getKey())) < entry.getValue()) {
                 errorMessage = errorMessage + entry.getKey() + ",";
                 lowQuantity = true;
             }
         }
+        System.out.println("Vasya2");
         if (lowQuantity) {
             errorMessage = errorMessage.substring(0, errorMessage.length() - 1);
             throw new ProductInShoppingCartLowQuantityInWarehouse("На складе не хватает товаров", HttpStatus.BAD_REQUEST, errorMessage);
@@ -114,7 +115,7 @@ public class WarehouseService {
 
         UUID uuid;
         try {
-            uuid = UUID.fromString(addProductToWarehouseRequest.getProductId());
+            uuid = UUID.fromString(addProductToWarehouseRequest.getProductId().replace("\"", ""));
         } catch (IllegalArgumentException e) {
             throw new ValidationException("Передан некорректный формат UUID " + addProductToWarehouseRequest.getProductId());
         }

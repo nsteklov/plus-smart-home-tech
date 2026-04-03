@@ -48,18 +48,18 @@ public class ShoppingCartService {
         }
 
         Map<UUID, Integer> savedProducts = new HashMap<>();
+        Map<String, Integer> savedProductsDto = new HashMap<>();
+        ShoppingCartDto shoppingCartDto = new ShoppingCartDto();
         for (Map.Entry<String, Integer> entry : products.entrySet()) {
             try {
-                UUID uuid = UUID.fromString(entry.getKey());
+                UUID uuid = UUID.fromString(entry.getKey().replace("\"", ""));
                 savedProducts.put(uuid, entry.getValue());
+                savedProductsDto.put(entry.getKey().replace("\"", ""), entry.getValue());
             } catch (IllegalArgumentException e) {
                 throw new ValidationException("Передан некорректный формат UUID " + entry.getKey());
             }
         }
-
-        ShoppingCartDto shoppingCartDto = new ShoppingCartDto();
-        shoppingCartDto.setProducts(savedProducts);
-
+        shoppingCartDto.setProducts(savedProductsDto);
         try {
             BookedProductsDto bookedProductsDto = warehouseClient.checkProductsInWarehouse(shoppingCartDto);
         } catch (ProductInShoppingCartLowQuantityInWarehouse productInShoppingCartLowQuantityInWarehouse) {
@@ -70,7 +70,6 @@ public class ShoppingCartService {
         ShoppingCart savedShoppingCart = shoppingCartRepository.save(shoppingCart);
         log.info("Создана корзина покупателя с UUID: {}", savedShoppingCart.getShoppingCartId());
 
-        shoppingCartDto.setShoppingCartId(savedShoppingCart.getShoppingCartId());
         return shoppingCartDto;
     }
 
@@ -79,14 +78,12 @@ public class ShoppingCartService {
             throw new NotAuthorizedUserException("Передано пустое имя пользователя", HttpStatus.UNAUTHORIZED, "Имя пользователя не должно быть пустым");
         }
         Optional<ShoppingCart> optionalShoppingCart = shoppingCartRepository.findByUsername(username);
-        ShoppingCartDto shoppingCartDto = new ShoppingCartDto();
         if (optionalShoppingCart.isPresent()) {
             ShoppingCart shoppingCart = optionalShoppingCart.get();
-            shoppingCartDto.setShoppingCartId(shoppingCart.getShoppingCartId());
-            shoppingCartDto.setProducts(shoppingCart.getProducts());
+            ShoppingCartDto shoppingCartDto = ShoppingCartMapper.toDto(shoppingCart);
             return shoppingCartDto;
         }
-        return null;
+        return new ShoppingCartDto();
     }
 
     @Transactional
@@ -108,13 +105,12 @@ public class ShoppingCartService {
             throw new NotAuthorizedUserException("Передано пустое имя пользователя", HttpStatus.UNAUTHORIZED, "Имя пользователя не должно быть пустым");
         }
         Optional<ShoppingCart> optionalShoppingCart = shoppingCartRepository.findByUsername(username);
-        ShoppingCartDto shoppingCartDto = new ShoppingCartDto();
         if (optionalShoppingCart.isPresent()) {
             ShoppingCart shoppingCart = optionalShoppingCart.get();
             Map<UUID, Integer> productsFromShoppingCart = shoppingCart.getProducts();
             for (String stringUUID : products) {
                 try {
-                    UUID uuid = UUID.fromString(stringUUID);
+                    UUID uuid = UUID.fromString(stringUUID.replace("\"", ""));
                     if (productsFromShoppingCart.containsKey(uuid)) {
                         productsFromShoppingCart.remove(uuid);
                     } else {
@@ -124,13 +120,12 @@ public class ShoppingCartService {
                     throw new ValidationException("Передан некорректный формат UUID " + stringUUID);
                 }
             }
-            shoppingCartRepository.save(shoppingCart);
-            shoppingCartDto.setShoppingCartId(shoppingCart.getShoppingCartId());
-            shoppingCartDto.setProducts(shoppingCart.getProducts());
+            ShoppingCart savedShoppingCart = shoppingCartRepository.save(shoppingCart);
+            ShoppingCartDto shoppingCartDto = ShoppingCartMapper.toDto(savedShoppingCart);
             log.info("Удалены товары из корзины по по покупателю : {}", username);
             return shoppingCartDto;
         }
-        return null;
+        return new ShoppingCartDto();
     }
 
     @Transactional
@@ -139,34 +134,34 @@ public class ShoppingCartService {
             throw new NotAuthorizedUserException("Передано пустое имя пользователя", HttpStatus.UNAUTHORIZED, "Имя пользователя не должно быть пустым");
         }
         Optional<ShoppingCart> optionalShoppingCart = shoppingCartRepository.findByUsername(username);
-        ShoppingCartDto shoppingCartDto = new ShoppingCartDto();
         if (optionalShoppingCart.isPresent()) {
             ShoppingCart shoppingCart = optionalShoppingCart.get();
             Map<UUID, Integer> productsFromShoppingCart = shoppingCart.getProducts();
+            Map<String, Integer> productsFromShoppingCartDto = new HashMap<>();
+            ShoppingCartDto shoppingCartDto = new ShoppingCartDto();
+            shoppingCartDto.setShoppingCartId(shoppingCart.getShoppingCartId().toString());
             try {
-                UUID uuid = UUID.fromString(changeProductQuantityRequest.getProductId());
+                UUID uuid = UUID.fromString(changeProductQuantityRequest.getProductId().replace("\"", ""));
                 if (productsFromShoppingCart.containsKey(uuid)) {
                     productsFromShoppingCart.put(uuid, changeProductQuantityRequest.getNewQuantity());
+                    productsFromShoppingCartDto.put(changeProductQuantityRequest.getProductId().replace("\"", ""), changeProductQuantityRequest.getNewQuantity());
                 } else {
                     throw new NoProductsInShoppingCartException("Отсутствуют товары в корзине", HttpStatus.BAD_REQUEST, "В корзине отсутствует товар с UUID: " + changeProductQuantityRequest.getProductId());
                 }
             } catch (IllegalArgumentException e) {
                 throw new ValidationException("Передан некорректный формат UUID " + shoppingCart.getProducts());
             }
-
-            shoppingCartDto.setShoppingCartId(shoppingCart.getShoppingCartId());
-            shoppingCartDto.setProducts(shoppingCart.getProducts());
-
+            shoppingCartDto.setProducts(productsFromShoppingCartDto);
             try {
                 BookedProductsDto bookedProductsDto = warehouseClient.checkProductsInWarehouse(shoppingCartDto);
             } catch (FeignException e) {
                 throw new ProductInShoppingCartLowQuantityInWarehouse("Привет", HttpStatus.BAD_REQUEST, "sds");
             }
 
-            shoppingCartRepository.save(shoppingCart);
+            ShoppingCart savedShoppingCart = shoppingCartRepository.save(shoppingCart);
             log.info("Изменено количество товаров в корзине по по покупателю : {}", username);
             return shoppingCartDto;
         }
-        return null;
+        return new ShoppingCartDto();
     }
 }

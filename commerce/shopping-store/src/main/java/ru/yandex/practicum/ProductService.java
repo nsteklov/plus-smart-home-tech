@@ -10,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.commerce.dto.ProductDto;
-import ru.yandex.practicum.commerce.dto.SetProductQuantityStateRequest;
 import ru.yandex.practicum.exception.ProductNotFoundException;
 import ru.yandex.practicum.exception.ValidationException;
 import ru.yandex.practicum.model.Product;
@@ -41,19 +40,21 @@ public class ProductService {
         return ProductMapper.toDto(savedProduct);
     }
 
-    public Page<ProductDto> getProductsByCategory(String categoryString, int page, int size, String[] sortArray) {
+    public Page<ProductDto> getProductsByCategory(String categoryString, int page, int size, String sortArray) {
 
         List<Sort.Order> orders = new ArrayList<>();
-        for (String s : sortArray) {
-            String[] sortElements = s.split(",");
-            if (sortElements.length == 2) {
-                if (sortElements[1].equals("desc")) {
-                    orders.add(new Sort.Order(Sort.Direction.DESC, sortElements[0]));
-                } else {
+        if (sortArray != null) {
+            for (String s : sortArray.split("/")) {
+                String[] sortElements = s.split(",");
+                if (sortElements.length == 2) {
+                    if (sortElements[1].equals("DESC")) {
+                        orders.add(new Sort.Order(Sort.Direction.DESC, sortElements[0]));
+                    } else {
+                        orders.add(new Sort.Order(Sort.Direction.ASC, sortElements[0]));
+                    }
+                } else if (sortElements.length == 1) {
                     orders.add(new Sort.Order(Sort.Direction.ASC, sortElements[0]));
                 }
-            } else if (sortElements.length == 1) {
-                orders.add(new Sort.Order(Sort.Direction.ASC, sortElements[0]));
             }
         }
         Sort sort = Sort.by(orders);
@@ -74,7 +75,7 @@ public class ProductService {
 
         UUID uuid;
         try {
-            uuid = UUID.fromString(productDto.getProductId());
+            uuid = UUID.fromString(productDto.getProductId().replace("\"", ""));
         } catch (IllegalArgumentException e) {
             throw new ValidationException("Передан некорректный формат UUID " + productDto.getProductId());
         }
@@ -129,10 +130,10 @@ public class ProductService {
 
     @Transactional
     public Boolean removeProduct(String productId) {
-
+        log.info("Деактивация товара с UUID {}", productId);
         UUID uuid;
         try {
-            uuid = UUID.fromString(productId);
+            uuid = UUID.fromString(productId.replace("\"", ""));
         } catch (IllegalArgumentException e) {
             throw new ValidationException("Передан некорректный формат UUID " + productId);
         }
@@ -140,33 +141,35 @@ public class ProductService {
         Product product = productRepository.findByProductId(uuid)
                 .orElseThrow(() -> new ProductNotFoundException("Товар не найден", HttpStatus.NOT_FOUND, "Товар с UUID " + productId + " не найден"));
 
-        productRepository.delete(product);
-        log.info("Товар с UUID {} удален", productId);
+        product.setProductState(ProductState.DEACTIVATE);
+        productRepository.save(product);
+        log.info("Товар с UUID {} деактивирован", productId);
         return true;
     }
 
     @Transactional
-    public Boolean updateQuantityState(SetProductQuantityStateRequest setProductQuantityStateRequest) {
+    public Boolean updateQuantityState(String productId, String quantityStateString) {
+        log.info("Обновление состояния количества товаров {} {}", productId, quantityStateString);
 
         UUID uuid;
         try {
-            uuid = UUID.fromString(setProductQuantityStateRequest.getProductId());
+            uuid = UUID.fromString(productId.replace("\"", ""));
         } catch (IllegalArgumentException e) {
-            throw new ValidationException("Передан некорректный формат UUID " + setProductQuantityStateRequest.getProductId());
+            throw new ValidationException("Передан некорректный формат UUID " + productId);
         }
 
         Product product = productRepository.findByProductId(uuid)
-                .orElseThrow(() -> new ProductNotFoundException("Товар не найден", HttpStatus.NOT_FOUND, "Товар с UUID " + setProductQuantityStateRequest.getProductId() + " не найден"));
+                .orElseThrow(() -> new ProductNotFoundException("Товар не найден", HttpStatus.NOT_FOUND, "Товар с UUID " + productId + " не найден"));
 
-        if (setProductQuantityStateRequest.getQuantityState() != null) {
+        if (quantityStateString != null) {
             try {
-                QuantityState quantityState = QuantityState.valueOf(setProductQuantityStateRequest.getQuantityState());
+                QuantityState quantityState = QuantityState.valueOf(quantityStateString);
                 product.setQuantityState(quantityState);
             } catch (IllegalArgumentException e) {
-                throw new ValidationException("Состояние количества товара " + setProductQuantityStateRequest.getQuantityState() + " не найдено");
+                throw new ValidationException("Состояние количества товара " + quantityStateString + " не найдено");
             }
         }
-
+        log.info("Обновлено состояния количества товаров {} {}", productId, quantityStateString);
         return true;
     }
 
@@ -174,7 +177,7 @@ public class ProductService {
 
         UUID uuid;
         try {
-            uuid = UUID.fromString(productId);
+            uuid = UUID.fromString(productId.replace("\"", ""));
         } catch (IllegalArgumentException e) {
             throw new ValidationException("Передан некорректный формат UUID " + productId);
         }
