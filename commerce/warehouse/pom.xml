@@ -32,7 +32,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>ru.practicum.WarehouseApplication</mainClass>
+                    <mainClass>ru.yandex.practicum.WarehouseApplication</mainClass>
                 </configuration>
             </plugin>
         </plugins>

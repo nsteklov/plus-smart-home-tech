@@ -32,7 +32,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>ru.practicum.ShoppingCartApplication</mainClass>
+                    <mainClass>ru.yandex.practicum.ShoppingCartApplication</mainClass>
                 </configuration>
             </plugin>
         </plugins>

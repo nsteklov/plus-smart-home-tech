@@ -29,7 +29,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>ru.practicum.DiscoveryServer</mainClass>
+                    <mainClass>ru.yandex.practicum.DiscoveryServer</mainClass>
                 </configuration>
             </plugin>
         </plugins>
