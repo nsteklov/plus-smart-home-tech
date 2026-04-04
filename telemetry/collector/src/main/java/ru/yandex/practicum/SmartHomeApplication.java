@@ -12,7 +12,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 public class SmartHomeApplication {
 
     public static void main(String[] args) {
-        //SpringApplication.run(SmartHomeApplication.class, args);
 
         ConfigurableApplicationContext context = SpringApplication.run(SmartHomeApplication.class, args);
 
