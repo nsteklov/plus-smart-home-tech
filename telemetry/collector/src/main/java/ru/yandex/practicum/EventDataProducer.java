@@ -85,20 +85,5 @@ public class EventDataProducer {
                 .build();
         log.info("Отправляю данные 2: {}", climateSensorProto.getAllFields());
         collectorStub.collectSensorEvent(climateSensorProto);
-
-//        //DEVICE_ADDED
-//        HubEventProto deviceAddedEventProto = HubEventProto.newBuilder()
-//                .setHubId("33")
-//                .setTimestamp(Timestamp.newBuilder()
-//                        .setSeconds(1234)
-//                        .setNanos(5234234)
-//                ).setDeviceAdded(DeviceAddedEventProto.newBuilder()
-//                        .setId("32")
-//                        .setTypeValue(DeviceTypeProto.CLIMATE_SENSOR_VALUE)
-//                        .build()
-//                )
-//                .build();
-//        log.info("Отправляю данные 4: {}", deviceAddedEventProto.getAllFields());
-//        collectorStub.collectHubEvent(deviceAddedEventProto);
     }
 }
