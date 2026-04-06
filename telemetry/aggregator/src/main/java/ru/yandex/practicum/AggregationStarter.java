@@ -34,26 +34,25 @@ public class AggregationStarter {
 
     public AggregationStarter(KafkaPropertiesConfigAggregator propertiesConfig) {
         this.propertiesConfig = propertiesConfig;
-
         Properties consumerConfig = new Properties();
-        consumerConfig.put(ConsumerConfig.CLIENT_ID_CONFIG, propertiesConfig.getClientId());
-        consumerConfig.put(ConsumerConfig.GROUP_ID_CONFIG, propertiesConfig.getGroupId());
+        consumerConfig.put(ConsumerConfig.CLIENT_ID_CONFIG, propertiesConfig.getConsumer().getClientId());
+        consumerConfig.put(ConsumerConfig.GROUP_ID_CONFIG, propertiesConfig.getConsumer().getGroupId());
         consumerConfig.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, propertiesConfig.getBootstrapServers());
-        consumerConfig.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, propertiesConfig.getKeyDeserializer());
-        consumerConfig.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, propertiesConfig.getValueDeserializer());
-        consumerConfig.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, propertiesConfig.getMaxPollRecordsConfig());
-        consumerConfig.put(ConsumerConfig.FETCH_MAX_BYTES_CONFIG, propertiesConfig.getFetchMaxBytesConfig());
-        consumerConfig.put(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG, propertiesConfig.getMaxPartitionFetchBytesConfig());
+        consumerConfig.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, propertiesConfig.getConsumer().getKeyDeserializer());
+        consumerConfig.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, propertiesConfig.getConsumer().getValueDeserializer());
+        consumerConfig.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, propertiesConfig.getConsumer().getMaxPollRecordsConfig());
+        consumerConfig.put(ConsumerConfig.FETCH_MAX_BYTES_CONFIG, propertiesConfig.getConsumer().getFetchMaxBytesConfig());
+        consumerConfig.put(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG, propertiesConfig.getConsumer().getMaxPartitionFetchBytesConfig());
         consumer = new KafkaConsumer<>(consumerConfig);
 
         Properties producerConfig = new Properties();
         producerConfig.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, propertiesConfig.getBootstrapServers());
-        producerConfig.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, propertiesConfig.getKeySerializer());
-        producerConfig.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, propertiesConfig.getValueSerializer());
+        producerConfig.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, propertiesConfig.getProducer().getKeySerializer());
+        producerConfig.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, propertiesConfig.getProducer().getValueSerializer());
         producer = new KafkaProducer<>(producerConfig);
 
-        sensorEventTopic = propertiesConfig.getSensorEventTopic();
-        snapshotTopic = propertiesConfig.getSnapshotTopic();
+        sensorEventTopic = propertiesConfig.getTopics().getSensorEventTopic();
+        snapshotTopic = propertiesConfig.getTopics().getSnapshotTopic();
     }
 
     public void start() {

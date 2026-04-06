@@ -25,11 +25,11 @@ public class KafkaProducerService implements AutoCloseable {
         this.propertiesConfig = propertiesConfig;
         Properties config = new Properties();
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, propertiesConfig.getBootstrapServers());
-        config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, propertiesConfig.getKeySerializer());
-        config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, propertiesConfig.getValueSerializer());
+        config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, propertiesConfig.getProducer().getKeySerializer());
+        config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, propertiesConfig.getProducer().getValueSerializer());
         topics =  new EnumMap<>(TopicType.class);
-        topics.put(TopicType.SENSOR_EVENTS, propertiesConfig.getSensorEventTopic());
-        topics.put(TopicType.HUB_EVENTS, propertiesConfig.getHubEventTopic());
+        topics.put(TopicType.SENSOR_EVENTS, propertiesConfig.getTopics().getSensorEventTopic());
+        topics.put(TopicType.HUB_EVENTS, propertiesConfig.getTopics().getHubEventTopic());
         producer = new KafkaProducer<>(config);
     }
 

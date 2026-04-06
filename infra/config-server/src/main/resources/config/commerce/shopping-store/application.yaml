@@ -1,0 +1,44 @@
+server:
+  port: 0
+
+# ============================================================
+# НАСТРОЙКИ БАЗЫ ДАННЫХ
+# ============================================================
+spring:
+  # DataSource
+  datasource:
+    url: jdbc:postgresql://localhost:6432/shopping-store
+    driverClassName: org.postgresql.Driver
+    username: dbuser
+    password: 12345
+
+  # JPA
+  jpa:
+    hibernate:
+      ddlAuto: none
+    properties:
+      hibernate:
+        format_sql: true
+
+  # SQL инициализация
+  sql:
+    init:
+      mode: always
+
+# ============================================================
+# НАСТРОЙКИ ЛОГИРОВАНИЯ
+# ============================================================
+logging:
+  level:
+    # JPA логи
+    org.springframework.orm.jpa: INFO
+    org.springframework.orm.jpa.JpaTransactionManager: DEBUG
+
+    # Транзакции
+    org.springframework.transaction: INFO
+    org.springframework.transaction.interceptor: TRACE
+
+    # Добавим для отладки (опционально)
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql: TRACE
+
