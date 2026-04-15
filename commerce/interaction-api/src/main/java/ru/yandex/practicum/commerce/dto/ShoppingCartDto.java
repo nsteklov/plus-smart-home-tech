@@ -7,6 +7,5 @@ import java.util.Map;
 public class ShoppingCartDto {
 
     private String shoppingCartId;
-
     private Map<String, Integer> products;
 }

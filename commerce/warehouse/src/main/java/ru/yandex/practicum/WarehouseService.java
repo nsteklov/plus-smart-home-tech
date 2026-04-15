@@ -10,7 +10,10 @@ import ru.yandex.practicum.commerce.exception.ProductInShoppingCartLowQuantityIn
 import ru.yandex.practicum.exception.SpecifiedProductAlreadyInWarehouseException;
 import ru.yandex.practicum.exception.ValidationException;
 import ru.yandex.practicum.exception.NoSpecifiedProductInWarehouseException;
+import ru.yandex.practicum.model.OrderBooking;
 import ru.yandex.practicum.model.ProductInWarehouse;
+import ru.yandex.practicum.repository.OrderBookingRepository;
+import ru.yandex.practicum.repository.ProductRepository;
 
 import java.security.SecureRandom;
 import java.util.*;
@@ -23,26 +26,29 @@ import java.util.stream.Collectors;
 public class WarehouseService {
 
     private final ProductRepository productRepository;
+    private final OrderBookingRepository orderBookingRepository;
     private static final String[] ADDRESSES = new String[] {"ADDRESS_1", "ADDRESS_2"};
-    private static final Map<String, AddressDto> WAREHOUSE_DATA = new HashMap<>();
+    private static final Map<String, WarehouseAddressDto> WAREHOUSE_DATA = new HashMap<>();
     private static final String CURRENT_ADDRESS =
             ADDRESSES[Random.from(new SecureRandom()).nextInt(0, ADDRESSES.length)];
 
     static {
-        WAREHOUSE_DATA.put("ADDRESS_1", new AddressDto(
+        WAREHOUSE_DATA.put("ADDRESS_1", new WarehouseAddressDto(
                 "Россия",
                 "Москва",
                 "Бобруйская",
                 "1",
-                "1"
+                "1",
+                "ADDRESS_1"
         ));
 
-        WAREHOUSE_DATA.put("ADDRESS_2", new AddressDto(
+        WAREHOUSE_DATA.put("ADDRESS_2", new WarehouseAddressDto(
                 "Белоруссия",
                 "Бобруйск",
-                "Московска",
+                "Московская",
                 "2",
-                "2" // не имеет холодильных камер
+                "2",
+                "ADDRESS_2"// не имеет холодильных камер
         ));
     }
 
@@ -70,42 +76,7 @@ public class WarehouseService {
     public BookedProductsDto checkProductsInWarehouse(ShoppingCartDto shoppingCartDto) {
 
         Map<String, Integer> productsInShoppingCart = shoppingCartDto.getProducts();
-        List<UUID> productIds = shoppingCartDto.getProducts().keySet().stream()
-                .map(UUID::fromString)
-                .collect(Collectors.toList());
-        List<ProductInWarehouse> productsInWarehouse = productRepository.findByProductIds(productIds);
-        Map<UUID, Integer> productsInWarehouseMap = productsInWarehouse.stream()
-                .collect(Collectors.toMap(
-                        ProductInWarehouse::getProductId,
-                        ProductInWarehouse::getQuantity
-                ));
-        boolean lowQuantity = false;
-        String errorMessage = "На складе не хватает товаров с UUID: ";
-        for (Map.Entry<String, Integer> entry : productsInShoppingCart.entrySet()) {
-            if (!productsInWarehouseMap.containsKey(UUID.fromString(entry.getKey())) || productsInWarehouseMap.get(UUID.fromString(entry.getKey())) < entry.getValue()) {
-                errorMessage = errorMessage + entry.getKey() + ",";
-                lowQuantity = true;
-            }
-        }
-        System.out.println("Vasya2");
-        if (lowQuantity) {
-            errorMessage = errorMessage.substring(0, errorMessage.length() - 1);
-            throw new ProductInShoppingCartLowQuantityInWarehouse("На складе не хватает товаров", HttpStatus.BAD_REQUEST, errorMessage);
-        }
-        Boolean fragile = false;
-        Double deliveryWeight = 0.0;
-        Double deliveryVolume = 0.0;
-        for (ProductInWarehouse product : productsInWarehouse) {
-            if (product.isFragile()) {
-                fragile = true;
-            }
-            deliveryWeight = deliveryWeight + product.getWeight();
-            deliveryVolume = deliveryVolume + (product.getDimension().getWidth() * product.getDimension().getDepth() * product.getDimension().getHeight());
-        }
-        BookedProductsDto bookedProductsDto = new BookedProductsDto();
-        bookedProductsDto.setFragile(fragile);
-        bookedProductsDto.setDeliveryWeight(deliveryWeight);
-        bookedProductsDto.setDeliveryVolume(deliveryVolume);
+        BookedProductsDto bookedProductsDto = checkAndGetProductsFromWarehouse(productsInShoppingCart);
         return bookedProductsDto;
     }
 
@@ -131,7 +102,110 @@ public class WarehouseService {
         return true;
     }
 
-    public AddressDto getWarehouseAddress() {
+    public WarehouseAddressDto getWarehouseAddress() {
         return WAREHOUSE_DATA.get(CURRENT_ADDRESS);
+    }
+
+    @Transactional
+    public BookedProductsDto assembly(AssemblyProductsForOrderRequest assemblyProductsForOrderRequest) {
+        log.info("Сборка товаров на складе {}", assemblyProductsForOrderRequest);
+
+        UUID orderUuid;
+        try {
+            orderUuid = UUID.fromString(assemblyProductsForOrderRequest.getOrderId().replace("\"", ""));
+        } catch (IllegalArgumentException e) {
+            throw new ValidationException("Передан некорректный формат UUID заказа " + assemblyProductsForOrderRequest.getOrderId());
+        }
+        Map<String, Integer> productsInOrderDto = assemblyProductsForOrderRequest.getProducts();
+        BookedProductsDto bookedProductsDto = checkAndGetProductsFromWarehouse(productsInOrderDto);
+        Map<UUID, Integer> productsInOrder = productsInOrderDto.entrySet().stream()
+                .collect(Collectors.toMap(
+                        entry -> UUID.fromString(entry.getKey()),
+                        Map.Entry::getValue
+                ));
+        productRepository.decreaseProductsBatch(productsInOrder);
+        log.info("Товары {} списаны со склада", productsInOrder);
+        OrderBooking orderBooking = new OrderBooking();
+        orderBooking.setOrderId(orderUuid);
+        orderBooking.setProducts(productsInOrder);
+        OrderBooking savedOrderBooking = orderBookingRepository.save(orderBooking);
+
+        return bookedProductsDto;
+    }
+
+    @Transactional
+    public boolean returnProducts(Map<String, Integer> products) {
+        log.info("Возврат товаров на склад {}", products);
+
+        Map<UUID, Integer> productsToReturn = products.entrySet().stream()
+                .collect(Collectors.toMap(
+                        entry -> UUID.fromString(entry.getKey()),
+                        Map.Entry::getValue
+                ));
+        productRepository.increaseProductsBatch(productsToReturn);
+        return true;
+    }
+
+    @Transactional
+    public void shipToDelivery(ShippedToDeliveryRequest shippedToDeliveryRequest) {
+        log.info("Передача товаров в службу доставки {}", shippedToDeliveryRequest);
+
+        UUID orderUuid;
+        try {
+            orderUuid = UUID.fromString(shippedToDeliveryRequest.getOrderId().replace("\"", ""));
+        } catch (IllegalArgumentException e) {
+            throw new ValidationException("Передан некорректный формат UUID заказа " + shippedToDeliveryRequest.getOrderId());
+        }
+        UUID deliveryUuid;
+        try {
+            deliveryUuid = UUID.fromString(shippedToDeliveryRequest.getDeliveryId().replace("\"", ""));
+        } catch (IllegalArgumentException e) {
+            throw new ValidationException("Передан некорректный формат UUID доставки " + shippedToDeliveryRequest.getDeliveryId());
+        }
+        Optional<OrderBooking> optOrderBooking = orderBookingRepository.findByOrderId(orderUuid);
+        if (optOrderBooking.isPresent()) {
+            OrderBooking orderBooking = optOrderBooking.get();
+            orderBooking.setDeliveryId(deliveryUuid);
+            log.info("Товары переданы в доставку {}", orderBooking.getProducts());
+        }
+    }
+
+    public BookedProductsDto checkAndGetProductsFromWarehouse(Map<String, Integer> checkedProducts) {
+        List<UUID> productIds = checkedProducts.keySet().stream()
+                .map(UUID::fromString)
+                .collect(Collectors.toList());
+        List<ProductInWarehouse> productsInWarehouse = productRepository.findByProductIds(productIds);
+        Map<UUID, Integer> productsInWarehouseMap = productsInWarehouse.stream()
+                .collect(Collectors.toMap(
+                        ProductInWarehouse::getProductId,
+                        ProductInWarehouse::getQuantity
+                ));
+        boolean lowQuantity = false;
+        String errorMessage = "На складе не хватает товаров с UUID: ";
+        for (Map.Entry<String, Integer> entry : checkedProducts.entrySet()) {
+            if (!productsInWarehouseMap.containsKey(UUID.fromString(entry.getKey())) || productsInWarehouseMap.get(UUID.fromString(entry.getKey())) < entry.getValue()) {
+                errorMessage = errorMessage + entry.getKey() + ",";
+                lowQuantity = true;
+            }
+        }
+        if (lowQuantity) {
+            errorMessage = errorMessage.substring(0, errorMessage.length() - 1);
+            throw new ProductInShoppingCartLowQuantityInWarehouse("На складе не хватает товаров", HttpStatus.BAD_REQUEST, errorMessage);
+        }
+        Boolean fragile = false;
+        Double deliveryWeight = 0.0;
+        Double deliveryVolume = 0.0;
+        for (ProductInWarehouse product : productsInWarehouse) {
+            if (product.isFragile()) {
+                fragile = true;
+            }
+            deliveryWeight = deliveryWeight + product.getWeight();
+            deliveryVolume = deliveryVolume + (product.getDimension().getWidth() * product.getDimension().getDepth() * product.getDimension().getHeight());
+        }
+        BookedProductsDto bookedProductsDto = new BookedProductsDto();
+        bookedProductsDto.setFragile(fragile);
+        bookedProductsDto.setDeliveryWeight(deliveryWeight);
+        bookedProductsDto.setDeliveryVolume(deliveryVolume);
+        return bookedProductsDto;
     }
 }

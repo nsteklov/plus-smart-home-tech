@@ -1,3 +1,6 @@
+server:
+  port: 0
+
 collector:
   # Общие настройки
   bootstrapServers: localhost:9092

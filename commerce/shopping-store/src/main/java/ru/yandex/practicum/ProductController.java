@@ -9,6 +9,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.commerce.dto.ProductDto;
 
+import java.util.List;
+
 @RestController
 @RequestMapping(path = "/api/v1/shopping-store")
 @RequiredArgsConstructor
@@ -26,6 +28,7 @@ public class ProductController {
     }
 
     @GetMapping
+    @ResponseStatus(HttpStatus.OK)
     public Page<ProductDto> getProducts(
             @RequestParam String category,
             @RequestParam(defaultValue = "0") int page,
@@ -58,8 +61,16 @@ public class ProductController {
     }
 
     @GetMapping("/{productId}")
+    @ResponseStatus(HttpStatus.OK)
     public ProductDto getProductById(@PathVariable String productId) {
         log.info("GET запрос на получение товара с UUID: {}", productId);
         return productService.getProductById(productId);
+    }
+
+    @PostMapping("/products")
+    @ResponseStatus(HttpStatus.OK)
+    public List<ProductDto> getProductsByIds(@RequestBody String... productIds) {
+        log.info("GET запрос на получение товаров по UUID: {}", productIds);
+        return productService.getProductsByIds(productIds);
     }
 }

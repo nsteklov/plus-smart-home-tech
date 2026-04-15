@@ -1,4 +1,4 @@
-package ru.yandex.practicum;
+package ru.yandex.practicum.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -9,7 +9,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface ProductRepository extends JpaRepository<ProductInWarehouse, Long> {
+public interface ProductRepository extends
+        JpaRepository<ProductInWarehouse, UUID>,
+        CustomProductRepository {
 
     Optional<ProductInWarehouse> findByProductId(UUID uuid);
 

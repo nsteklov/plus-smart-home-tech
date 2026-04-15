@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class BookedProductsDto {
 
-    private double deliveryWeight;
-    private double deliveryVolume;
+    private Double deliveryWeight;
+    private Double deliveryVolume;
     private boolean fragile;
 }

@@ -40,5 +40,6 @@ public class Product {
     private ProductCategory productCategory;
 
     @Min(value = 1, message = "Цена должна быть больше 1")
-    private double price;
+    @Column
+    private Double price;
 }

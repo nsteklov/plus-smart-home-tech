@@ -2,7 +2,6 @@ package ru.yandex.practicum.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

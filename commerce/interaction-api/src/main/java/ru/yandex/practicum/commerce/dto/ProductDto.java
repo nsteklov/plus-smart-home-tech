@@ -30,5 +30,5 @@ public class ProductDto {
     private String productCategory;
 
     @Positive(message = "Цена товара должна быть положительным числом")
-    private double price;
+    private Double price;
 }
