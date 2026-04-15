@@ -6,8 +6,9 @@ import org.springframework.data.repository.query.Param;
 import ru.yandex.practicum.model.ShoppingCart;
 
 import java.util.Optional;
+import java.util.UUID;
 
-public interface ShoppingCartRepository extends JpaRepository<ShoppingCart, Long> {
+public interface ShoppingCartRepository extends JpaRepository<ShoppingCart, UUID> {
 
     @Query("SELECT sc FROM ShoppingCart sc " +
             "LEFT JOIN FETCH sc.products p " +

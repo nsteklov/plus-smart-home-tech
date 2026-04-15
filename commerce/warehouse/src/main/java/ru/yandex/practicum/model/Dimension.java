@@ -9,11 +9,11 @@ import lombok.Setter;
 public class Dimension {
 
     @Min(value = 1, message = "Ширина товара должна быть больше 1")
-    private Double width;
+    private double width;
 
     @Min(value = 1, message = "Высота товара должна быть больше 1")
-    private Double height;
+    private double height;
 
     @Min(value = 1, message = "Глубина товара должна быть больше 1")
-    private Double depth;
+    private double depth;
 }

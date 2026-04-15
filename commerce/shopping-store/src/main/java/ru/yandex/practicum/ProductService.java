@@ -20,6 +20,7 @@ import ru.yandex.practicum.model.QuantityState;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -186,5 +187,23 @@ public class ProductService {
                 .orElseThrow(() -> new ProductNotFoundException("Товар не найден", HttpStatus.NOT_FOUND, "Товар с UUID " + productId + " не найден"));
 
         return ProductMapper.toDto(product);
+    }
+
+    public List<ProductDto> getProductsByIds(String[] productIds) {
+
+        List<UUID> uuids = new ArrayList<>();
+        for (String productId : productIds) {
+            try {
+                UUID uuid = UUID.fromString(productId.replace("\"", ""));
+                uuids.add(uuid);
+            } catch (IllegalArgumentException e) {
+                throw new ValidationException("Передан некорректный формат UUID " + productId);
+            }
+        }
+        List<ProductDto> productsDto = productRepository.findByProductIds(uuids).stream()
+                .map(ProductMapper::toDto)
+                .collect(Collectors.toList());
+
+        return productsDto;
     }
 }

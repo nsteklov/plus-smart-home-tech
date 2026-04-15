@@ -53,4 +53,11 @@ public class ShoppingCartController {
         log.info("POST запрос на изменение количества товаров из корзины по авторизованному пользователю : {}", username);
         return shoppingCartService.changeQuantity(changeProductQuantityRequest, username);
     }
+
+    @GetMapping("/username")
+    public String getUserNameByProductCartUUID(@RequestParam String uuid) {
+
+        log.info("GET запрос на получение имемни пользтвателя корзины покупателя: {}", uuid);
+        return shoppingCartService.getUserNameByProductCartUUID(uuid);
+    }
 }

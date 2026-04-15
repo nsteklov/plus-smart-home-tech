@@ -155,7 +155,7 @@ public class ShoppingCartService {
             try {
                 BookedProductsDto bookedProductsDto = warehouseClient.checkProductsInWarehouse(shoppingCartDto);
             } catch (FeignException e) {
-                throw new ProductInShoppingCartLowQuantityInWarehouse("Привет", HttpStatus.BAD_REQUEST, "sds");
+                throw new ProductInShoppingCartLowQuantityInWarehouse("Отсутствуют товары на складе", HttpStatus.BAD_REQUEST, "На складе не обнаружены товары");
             }
 
             ShoppingCart savedShoppingCart = shoppingCartRepository.save(shoppingCart);
@@ -163,5 +163,19 @@ public class ShoppingCartService {
             return shoppingCartDto;
         }
         return new ShoppingCartDto();
+    }
+
+    public String getUserNameByProductCartUUID(String uuidString) {
+        UUID uuid;
+        try {
+            uuid = UUID.fromString(uuidString.replace("\"", ""));
+        } catch (IllegalArgumentException e) {
+            throw new ValidationException("Передан некорректный формат UUID " + uuidString);
+        }
+        Optional<ShoppingCart> optionalShoppingCart = shoppingCartRepository.findById(uuid);
+        if (optionalShoppingCart.isPresent()) {
+            return optionalShoppingCart.get().getUsername();
+        }
+        return "";
     }
 }

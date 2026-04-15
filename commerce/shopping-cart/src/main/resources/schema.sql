@@ -1,4 +1,4 @@
--- создаём таблицу products
+-- создаём таблицу shopping cart
 CREATE TABLE IF NOT EXISTS shopping_cart (
     shopping_cart_id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     username VARCHAR

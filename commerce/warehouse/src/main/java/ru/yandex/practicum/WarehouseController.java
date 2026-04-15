@@ -8,6 +8,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.commerce.dto.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping(path = "/api/v1/warehouse")
 @RequiredArgsConstructor
@@ -40,8 +42,29 @@ public class WarehouseController {
 
     @GetMapping("/address")
     @ResponseStatus(HttpStatus.OK)
-    public AddressDto getWarehouseAddress() {
+    public WarehouseAddressDto getWarehouseAddress() {
         log.info("Получить адрес склада");
         return warehouseService.getWarehouseAddress();
+    }
+
+    @PostMapping("/assembly")
+    @ResponseStatus(HttpStatus.OK)
+    public BookedProductsDto assembly(@RequestBody AssemblyProductsForOrderRequest assemblyProductsForOrderRequest) {
+        log.info("Сборка товаров для заказа {} ", assemblyProductsForOrderRequest);
+        return warehouseService.assembly(assemblyProductsForOrderRequest);
+    }
+
+    @PostMapping("/return")
+    @ResponseStatus(HttpStatus.OK)
+    public boolean returnProducts(@RequestBody Map<String, Integer> products) {
+        log.info("Возврат товаров на склад {} ", products);
+        return warehouseService.returnProducts(products);
+    }
+
+    @PostMapping("/shipped")
+    @ResponseStatus(HttpStatus.OK)
+    public void shipToDelivery(@RequestBody ShippedToDeliveryRequest shippedToDeliveryRequest) {
+        log.info("Передача товаров в службу доставки {} ", shippedToDeliveryRequest);
+        warehouseService.shipToDelivery(shippedToDeliveryRequest);
     }
 }
