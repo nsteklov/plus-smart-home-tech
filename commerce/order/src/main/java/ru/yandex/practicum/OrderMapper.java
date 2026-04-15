@@ -1,8 +1,6 @@
 package ru.yandex.practicum;
 
 import ru.yandex.practicum.commerce.dto.OrderDto;
-import ru.yandex.practicum.commerce.dto.ShoppingCartDto;
-import ru.yandex.practicum.exception.ValidationException;
 import ru.yandex.practicum.model.Order;
 
 import java.util.HashMap;

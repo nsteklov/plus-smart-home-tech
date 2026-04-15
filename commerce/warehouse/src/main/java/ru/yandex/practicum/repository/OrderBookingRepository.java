@@ -4,7 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import ru.yandex.practicum.model.OrderBooking;
-import ru.yandex.practicum.model.ProductInWarehouse;
 
 import java.util.Optional;
 import java.util.UUID;

@@ -1,12 +1,7 @@
 package ru.yandex.practicum;
 
 import ru.yandex.practicum.commerce.dto.PaymentDto;
-import ru.yandex.practicum.commerce.dto.ShoppingCartDto;
 import ru.yandex.practicum.model.Payment;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 public class PaymentMapper {
 

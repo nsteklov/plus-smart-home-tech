@@ -10,7 +10,6 @@ import ru.yandex.practicum.commerce.dto.PaymentDto;
 import ru.yandex.practicum.commerce.dto.ProductDto;
 import ru.yandex.practicum.commerce.feign.OrderClient;
 import ru.yandex.practicum.commerce.feign.ShoppingStoreClient;
-import ru.yandex.practicum.commerce.feign.WarehouseClient;
 import ru.yandex.practicum.exception.NoOrderFoundException;
 import ru.yandex.practicum.exception.NotEnoughInfoInOrderToCalculateException;
 import ru.yandex.practicum.exception.ValidationException;

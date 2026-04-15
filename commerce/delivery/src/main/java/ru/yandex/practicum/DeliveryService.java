@@ -6,7 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.commerce.dto.*;
-import ru.yandex.practicum.commerce.exception.ProductInShoppingCartLowQuantityInWarehouse;
 import ru.yandex.practicum.commerce.feign.OrderClient;
 import ru.yandex.practicum.commerce.feign.WarehouseClient;
 import ru.yandex.practicum.exception.NoDeliveryFoundException;
@@ -14,9 +13,6 @@ import ru.yandex.practicum.exception.ValidationException;
 import ru.yandex.practicum.model.Address;
 import ru.yandex.practicum.model.Delivery;
 import ru.yandex.practicum.model.DeliveryState;
-
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 @Service

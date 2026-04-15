@@ -1,6 +1,5 @@
 package ru.yandex.practicum;
 
-import ru.yandex.practicum.commerce.dto.ProductDto;
 import ru.yandex.practicum.commerce.dto.ShoppingCartDto;
 import ru.yandex.practicum.model.ShoppingCart;
 
